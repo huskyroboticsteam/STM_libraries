@@ -10,7 +10,7 @@
 
 typedef struct {
 	TIM_HandleTypeDef *htim_step;
-	uint32_t tim_step_channel;
+	uint32_t tim_clk_freq;
 	GPIO_TypeDef *IN1_port;
 	uint16_t IN1_pin;
     GPIO_TypeDef *IN2_port;
