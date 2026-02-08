@@ -34,9 +34,9 @@ void DRV8425_Init(DRV8425_Handle *hdrv) {
     GPIO_Step.Speed = GPIO_SPEED_FREQ_LOW;
     HAL_GPIO_Init(hdrv->step_port, &GPIO_Step);
 
-    enable_state = ENABLE_LOW;
-    steps_remaining = 0;
-    direction = FORWARD;
+    hdrv->enable_state = ENABLE_LOW;
+    hdrv->steps_remaining = 0;
+    hdrv->direction = FORWARD;
 }
 
 
