@@ -38,7 +38,8 @@ void DRV8425_Init(DRV8425_Handle *hdrv) {
     GPIO_Enable.Speed = GPIO_SPEED_FREQ_MEDIUM;
     HAL_GPIO_Init(hdrv->step_port, &GPIO_Step);
 
-    enable_state = ENABLE_LOW;
+    hdrv->enable_state = ENABLE_LOW;
+    hdrv->direction = FORWARD;
 }
 
 
@@ -49,10 +50,10 @@ void DRV8425_DriveSteps(DRV8425_Handle *hdrv, int32_t steps, uint32_t freq) {
     //make sure there are steps remaining (steps != 0)
     //make sure freq !=0
     //make sure there's a valid driver like motorX -> so you can access dir/step pins
-    if (!hdrv || steps == 0 || freq == 0) return 1;
+    if (!hdrv || steps == 0 || freq == 0) return;
 
     if ((freq > MAX_STEP_FREQ) || (freq < MIN_STEP_FREQ)) {
-    	return 1;
+    	return;
     }
 
     //determine directions -> pos steps = DIR pin 0 = positive/forward CW, DIR pin 1 = negative/reverse CCW
@@ -116,16 +117,16 @@ void DRV8425_DriveSteps(DRV8425_Handle *hdrv, int32_t steps, uint32_t freq) {
 
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
     //make sure you're accessing the right timer for interrupt
-    if(!active_drv) return 1; //could return named error
-    if(htim != active_drv->htim_step) return 1; //could return named error
+    if(!active_drv) return; //could return named error
+    if(htim != active_drv->htim_step) return; //could return named error
 
     //if no more steps -> stop interrupt, disable & reset driver
     if (htim->Instance == TIM1) {
         HAL_TIM_Base_Stop_IT(htim);
-        HAL_TIM_PWM_Stop(hdrv->htim_step, hdrv->htim_channel);
+        HAL_TIM_PWM_Stop(active_drv->htim_step, active_drv>htim_channel);
         HAL_GPIO_WritePin(active_drv->enable_port, active_drv->enable_pin, GPIO_PIN_RESET);
         active_drv = NULL;
-        return 0;
+        return;
     }
 
 }
@@ -133,7 +134,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
 
 // Stop motor regardless of steps remaining. -> TURN OFF ENABLE
 uint8_t DRV8425_Stop(DRV8425_Handle *hdrv) {
-    if(!hdrv) return;
+    if(!hdrv) return 1;
     //stop the interrupt
     HAL_TIM_Base_Stop_IT(hdrv->htim_step);
     //cancel remaining steps
@@ -144,3 +145,4 @@ uint8_t DRV8425_Stop(DRV8425_Handle *hdrv) {
 
     return 0;
 }
+
