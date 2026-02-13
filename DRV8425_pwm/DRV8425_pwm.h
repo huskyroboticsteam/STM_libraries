@@ -20,6 +20,9 @@ typedef struct {
 	uint16_t enable_pin;
     GPIO_TypeDef *step_port;
     uint16_t step_pin;
+
+	uint8_t direction;
+	uint8_t enable_state;
 } DRV8425_Handle;
 
 #define MAX_STEP_FREQ 500000
